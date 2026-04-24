@@ -17,7 +17,7 @@ SPARC combines fast CNV inference from scRNA-seq count data (via [CopyKat](https
 ### 1. Clone the repository
  
 ```bash
-git clone https://github.com/dsaha0295/SPARC.git  
+git clone https://github.com/ChrisMaherLab/SPARC.git  
 cd SPARC
 ```
  
