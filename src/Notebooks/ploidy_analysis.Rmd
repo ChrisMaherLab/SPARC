@@ -1,6 +1,8 @@
 ---
 title: "PACCs analysis of scRNA PC3/MDA cells w/ Cisplatin/Docetaxel and validation in scRNA and bulk RNA for mCRPC"
 output: html_notebook
+editor_options: 
+  chunk_output_type: inline
 ---
 #Load libraries
 ```{r}
@@ -127,13 +129,15 @@ plt <- sc.meta.long %>%
     legend.position = "none", 
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
-ggsave("/Users/debanjansaha/Desktop/pc3_cnv_boxplot_d.pdf", plt, width = 10)
+#ggsave("/Users/debanjansaha/Desktop/pc3_cnv_boxplot_d.pdf", plt, width = 10)
 
 #Write metadata to csv file - filter out Spike-in and C1 cells (unclear if these undergo WGD)
-#sc.meta %>% dplyr::select(Percent.MT, S.Score, cnv_total, nCount_RNA,nFeature_RNA, G2M.Score, cell, Notation, starts_with("HALLMARK")) %>% filter(!(Notation %in% c(NA, "d1") ))%>% write.csv(file = "/Users/debanjansaha/Desktop/copykatres_pc3_d_meta.csv")
+# sc.meta %>% dplyr::select(Percent.MT, S.Score, cnv_total, nCount_RNA,nFeature_RNA, G2M.Score, cell, Notation, starts_with("HALLMARK")) %>% filter(!(Notation %in% c(NA, "d1") ))%>% write.csv(file = "/Users/debanjansaha/Desktop/copykatres_pc3_d_meta.csv")
+
+sc.meta %>% dplyr::select(Percent.MT, S.Score, cnv_total, nCount_RNA,nFeature_RNA, G2M.Score, cell, Notation, starts_with("HALLMARK")) %>% filter(!(Notation %in% c(NA) ))%>% write.csv(file = "/Users/debanjansaha/Desktop/copykatres_pc3_d_meta.csv")
 #ggsave("/Users/debanjansaha/Desktop/pc3_cnv_boxplot_d.pdf", plt)
 
-
+sc.meta %>% dplyr::select(Percent.MT, S.Score, cnv_total, nCount_RNA,nFeature_RNA, G2M.Score, cell, Notation, starts_with("HALLMARK")) %>% filter(!(Notation %in% c(NA) )) %>% View()
 ```
 
 #Plots for CN profile of Docetaxel treated PC3 cells
@@ -393,7 +397,7 @@ cnv_summary <- mutate(cnv_summary, cnv_total = gains + losses)
 sc.meta <- sc.meta %>% mutate(cell = sub(pattern = "-", replacement = "\\.", x = row.names(.))) %>% left_join(cnv_summary)
 
 #Save to csv
-sc.meta %>% dplyr::select(Percent.MT, S.Score, cnv_total, nCount_RNA,nFeature_RNA, G2M.Score, cell, Group, starts_with("HALLMARK")) %>% filter(!(Group %in% c(NA, "c1") ))%>% write.csv(file = "/Users/debanjansaha/Desktop/copykatres_mda_c_meta.csv")
+sc.meta %>% dplyr::select(Percent.MT, S.Score, cnv_total, nCount_RNA,nFeature_RNA, G2M.Score, cell, Group, starts_with("HALLMARK")) %>% filter(!(Group %in% c(NA) ))%>% write.csv(file = "/Users/debanjansaha/Desktop/copykatres_mda_c_meta.csv")
 ```
 
 #MDA cells with docetaxel
@@ -437,7 +441,7 @@ sc.meta <- sc.meta %>% mutate(cell = sub(pattern = "-", replacement = "\\.", x =
 
 
 #Save to csv
-sc.meta %>% dplyr::select(Percent.MT, S.Score, cnv_total, nCount_RNA,nFeature_RNA, G2M.Score, cell, Group, starts_with("HALLMARK")) %>% filter(!(Group %in% c(NA, "d1") ))%>% write.csv(file = "/Users/debanjansaha/Desktop/copykatres_mda_d_meta.csv")
+sc.meta %>% dplyr::select(Percent.MT, S.Score, cnv_total, nCount_RNA,nFeature_RNA, G2M.Score, cell, Group, starts_with("HALLMARK")) %>% filter(!(Group %in% c(NA) ))%>% write.csv(file = "/Users/debanjansaha/Desktop/copykatres_mda_d_meta.csv")
 
 
 
@@ -453,7 +457,8 @@ sc.meta %>% dplyr::select(Percent.MT, S.Score, cnv_total, nCount_RNA,nFeature_RN
 
 
 # Combine all entries into one tidy dataframe
-auc_df_d <- read.csv(file = "/Users/debanjansaha/Desktop/mCRPC_analysis/R/sensitivity_analysis/auc_mda_d.csv")
+#auc_df_d <- read.csv(file = "/Users/debanjansaha/Desktop/mCRPC_analysis/R/sensitivity_analysis/auc_mda_d.csv")
+auc_df_d <- read.csv(file = "/Users/debanjansaha/Desktop/auc_mda_d.csv")
 
 
 auc_df_d <- auc_df_d %>%
@@ -476,9 +481,11 @@ auc_df_d <- auc_df_d %>%
 
 plt1 <- auc_df_d %>% ggplot(aes(y = Dataset_label, x = auc, color = model)) + geom_jitter() + xlim(c(0.5,1.05)) + theme_bw(base_size = 10) + scale_color_aaas(name = "Model") + ylab("MDA with Docetaxel") + xlab("AUC") + theme(legend.text = element_text(size = 12), legend.title = element_text(size = 12))
 
+plt1
 
 # Combine all entries into one tidy dataframe
-auc_df_c <- read.csv(file = "/Users/debanjansaha/Desktop/mCRPC_analysis/R/sensitivity_analysis/auc_mda_c.csv")
+#auc_df_c <- read.csv(file = "/Users/debanjansaha/Desktop/mCRPC_analysis/R/sensitivity_analysis/auc_mda_c.csv")
+auc_df_c <- read.csv(file = "/Users/debanjansaha/Desktop/auc_mda_c.csv")
 
 auc_df_c <- auc_df_c %>%
   mutate(
@@ -498,11 +505,11 @@ auc_df_c <- auc_df_c %>%
   ungroup() %>%
   dplyr::select(-spikein, -untreated, -d1, -d5, -d10)
 
-plt2 <- auc_df_c %>% ggplot(aes(y = Dataset_label, x = auc, color = model)) + geom_jitter() + xlim(c(0.5,1.05)) + theme_bw(base_size = 10) + scale_color_viridis_d(name = "Model") + ylab("MDA with Cisplatin") + xlab("AUC") +   theme(legend.position = "none")
+plt2 <- auc_df_c %>% ggplot(aes(y = Dataset_label, x = auc, color = model)) + geom_jitter() + xlim(c(0.5,1.05)) + theme_bw(base_size = 10) + scale_color_aaas(name = "Model") + ylab("MDA with Cisplatin") + xlab("AUC") +  theme(legend.text = element_text(size = 12), legend.title = element_text(size = 12))
 
 
-pdf(file = "/Users/debanjansaha/Desktop/pc_plots_v4/mda_paccs_sens.pdf", width = 10)
-ggarrange(plt1, plt2, ncol = 1, nrow = 2)
+pdf(file = "/Users/debanjansaha/Desktop/pcfinder/results/pc_plots_v4/mda_paccs_sens.pdf", width = 10)
+ggarrange(plt1, plt2, ncol = 1, nrow = 2, common.legend = T)
 dev.off()
 
 
@@ -515,6 +522,7 @@ dev.off()
 
 
 ```{r}
+
 #Load data
 scrna <- readRDS("/Users/debanjansaha/Desktop/mCRPC_analysis/R/crpc_analysis/results/crpc_epi20000tme20000seed123.rds")
 scrna <- scrna %>% NormalizeData() %>% FindVariableFeatures() %>% ScaleData()
@@ -814,7 +822,47 @@ p <- pathway_stats %>%
     color = "PCs group"
   ) + scale_color_viridis_d(end = 0.5)
 
-ggsave(filename = "/Users/debanjansaha/Desktop/pc_plots_v4/gsva.pdf", plot = p)
+clean_names <- function(x) {
+  x |>
+    str_remove("^HALLMARK_") |>
+    str_remove("\\d+$") |> #Drop trailing numbers            
+    str_replace_all("_", " ") |>
+    str_to_sentence() |>
+    str_replace("^Mtorc1", "mTORC1")  #fix cases
+}
+
+plot_df <- pathway_stats |>
+  mutate(pathway = clean_names(pathway)) |>
+  group_by(pathway) |>               
+  summarise(across(c(PCs, `non-PCs`, mean_diff), mean), .groups = "drop") |>
+  arrange(mean_diff) |>
+  mutate(pathway = factor(pathway, levels = pathway))
+
+data.frame(plot_df)
+
+#Subset for known pathways in associated with PCs
+plot_df <- plot_df %>% dplyr::filter(pathway %in% c("G2m checkpoint", "Reactive oxygen species pathway", "mTORC1 signaling",
+                                         "Interferon alpha response", "Interferon gamma response", "Adipogenesis", "Fatty acid metabolism"))
+
+
+long <- plot_df |>
+  pivot_longer(c(PCs, `non-PCs`), names_to = "group", values_to = "score")
+
+p <- ggplot()  +
+  geom_segment(data = plot_df,
+               aes(x = `non-PCs`, xend = PCs, y = pathway, yend = pathway),
+               color = "grey75", linewidth = 1.4) +
+  geom_point(data = long, aes(score, pathway, color = group), size = 4) +
+  geom_text(data = plot_df,
+            aes(x = pmax(PCs, `non-PCs`), y = pathway,
+                label = sprintf("Delta = %.2f", mean_diff)),
+            hjust = -0.35, size = 5, color = "grey30") +
+  scale_color_viridis_d(end = 0.5)+
+  scale_x_continuous(expand = expansion(mult = c(0.05, 0.18))) +
+  labs(x = "Mean GSVA Hallmark pathway score", y = NULL) +
+  theme_classic(base_size = 20) +
+  theme(legend.position = "top")
+ggsave(filename = "/Users/debanjansaha/Desktop/gsva_pc.pdf", plot = p, width = 15)
 
 ```
 
@@ -1139,7 +1187,7 @@ dev.off()
 ```{r}
 #Plot AUC of training data (PCA with C)
 library(pROC)
-pc3_c_train_auc <- read.table(file = "/Users/debanjansaha/Desktop/pc_plots_v4/paccs_plots_v2/pca_c_class_train_results.tsv", header = T)
+pc3_c_train_auc <- read.table(file = "/Users/debanjansaha/Desktop/sparc_revision_results/pca_c_class_train_results.tsv", header = T)
 
 p1 <- pc3_c_train_auc %>% mutate(Fold = 1:n()) %>%
   pivot_longer(
@@ -1149,7 +1197,7 @@ p1 <- pc3_c_train_auc %>% mutate(Fold = 1:n()) %>%
   ) %>% ggplot(aes(x = Fold, y = AUC, fill = Model)) + scale_fill_viridis_d(option = "B") + geom_col(position = "dodge") + theme_bw(base_size = 20) + ylim(c(0,1))
 
 #Plot Feature importances in training data
-pc3_c_feature <- read.table(file = "/Users/debanjansaha/Desktop/pc_plots_v4/paccs_plots_v2/pca_c_feature_import.tsv", header = T)
+pc3_c_feature <- read.table(file = "/Users/debanjansaha/Desktop/pca_c_feature_import.tsv", header = T)
 
 p2 <- pc3_c_feature %>% ggplot(aes(x = Feature, y = Importance, fill = Model)) + scale_fill_viridis_d(option = "E") + geom_col(position = "dodge") + theme_bw(base_size = 20) + ylim(c(0,1))  + scale_x_discrete(labels = c(
     cnv_total    = "Total CNV",
@@ -1161,23 +1209,26 @@ p2 <- pc3_c_feature %>% ggplot(aes(x = Feature, y = Importance, fill = Model)) +
   ))
 
 #Plot AUC of validation data (PCA with D, MDA with C and D)
-pc3_d_valid_auc <- read.table(file = "/Users/debanjansaha/Desktop/pc_plots_v4/paccs_plots_v2/pca_d_results.tsv", header = T)
-mda_c_valid_auc <- read.table(file = "/Users/debanjansaha/Desktop/pc_plots_v4/paccs_plots_v2/mda_c_results.tsv", header = T)
-mda_d_valid_auc <- read.table(file = "/Users/debanjansaha/Desktop/pc_plots_v4/paccs_plots_v2/mda_d_results.tsv", header = T)
+pc3_d_valid_auc <- read.table(file = "/Users/debanjansaha/Desktop/sparc_revision_results/pca_d_results.tsv", header = T)
+mda_c_valid_auc <- read.table(file = "/Users/debanjansaha/Desktop/sparc_revision_results/mda_c_results.tsv", header = T)
+mda_d_valid_auc <- read.table(file = "/Users/debanjansaha/Desktop/sparc_revision_results/mda_d_results.tsv", header = T)
 
+#Filter out 1DPT cells for AUC plotting as these will be used separatly in post-prob plots
+pc3_d_valid_auc_filter <- pc3_d_valid_auc %>% dplyr::filter(!(Notation %in% c("d1")))
+mda_c_valid_auc_filter <- mda_c_valid_auc %>% dplyr::filter(!(Group %in% c("c1")))
+mda_d_valid_auc_filter <- mda_d_valid_auc %>% dplyr::filter(!(Group %in% c("d1")))
 
-
-p3 <- rbind(pc3_d_valid_auc %>%
+p3 <- rbind(pc3_d_valid_auc_filter %>%
   dplyr::select(ends_with("WGD_prob")) %>%
-  map_dbl(~ as.numeric(auc(pc3_d_valid_auc$label, .x)))  %>%  
+  map_dbl(~ as.numeric(auc(pc3_d_valid_auc_filter$label, .x)))  %>%  
     enframe(name = "model", value = "AUC") %>% mutate(Data = "PC3 Docetaxel"), 
-  mda_c_valid_auc %>% 
+  mda_c_valid_auc_filter %>% 
     dplyr::select(ends_with("WGD_prob")) %>%
-  map_dbl(~ as.numeric(auc(mda_c_valid_auc$label, .x))) %>%
+  map_dbl(~ as.numeric(auc(mda_c_valid_auc_filter$label, .x))) %>%
   enframe(name = "model", value = "AUC")  %>% mutate(Data = "MDA Cisplatin") )  %>% 
   rbind(
-    mda_d_valid_auc %>% dplyr::select(ends_with("WGD_prob")) %>%
-  map_dbl(~ as.numeric(auc(mda_d_valid_auc$label, .x))) %>%
+    mda_d_valid_auc_filter %>% dplyr::select(ends_with("WGD_prob")) %>%
+  map_dbl(~ as.numeric(auc(mda_d_valid_auc_filter$label, .x))) %>%
   enframe(name = "model", value = "AUC")   %>% mutate(Data = "MDA Docetaxel")
   ) %>% ggplot(aes(y = model, x = AUC, fill = Data)) + scale_fill_viridis_d(end = 0.3) + geom_col(position = "dodge") + theme_bw(base_size = 20) + xlim(c(0,1))   + scale_y_discrete(labels = c(
     XGBoost_WGD_prob    = "XGBoost",
@@ -1187,42 +1238,179 @@ p3 <- rbind(pc3_d_valid_auc %>%
     LogisticRegression_WGD_prob   = "LogisticRegression"
   ))
  
-p4 <- rbind(
-  dplyr::select(pc3_d_valid_auc, label, ends_with("WGD_prob")) %>% 
-    mutate(Data = "PC3 Docetaxel"),
-  dplyr::select(mda_c_valid_auc, label, ends_with("WGD_prob")) %>% 
+p4 <-rbind(
+  dplyr::select(pc3_d_valid_auc, label, ends_with("WGD_prob"), Notation) %>% 
+    mutate(Data = "PC3 Docetaxel", Group = Notation) %>% dplyr::select(-Notation),
+  dplyr::select(mda_c_valid_auc, label, ends_with("WGD_prob"), Group) %>% 
     mutate(Data = "MDA Cisplatin"),
-  dplyr::select(mda_d_valid_auc, label, ends_with("WGD_prob")) %>% 
+  dplyr::select(mda_d_valid_auc, label, ends_with("WGD_prob"), Group) %>% 
     mutate(Data = "MDA Docetaxel")
-)  %>% 
-  pivot_longer(cols = -c(label, Data),
+) %>% 
+  pivot_longer(cols = -c(label, Data, Group),
                names_to = "Model",
                values_to = "PACCs_Probability") %>% 
   mutate(Model = recode(Model,
-  "XGBoost_WGD_prob"    = "XGBoost",
-    "SVM_WGD_prob"    = "SVM",
-    "RandomForest_WGD_prob"   = "RandomForest",
-    "NeuralNet_WGD_prob" = "NeuralNet",
-    "LogisticRegression_WGD_prob"   = "LogisticRegression"
-)) %>%
+    "XGBoost_WGD_prob"           = "XGBoost",
+    "SVM_WGD_prob"               = "SVM",
+    "RandomForest_WGD_prob"      = "RandomForest",
+    "NeuralNet_WGD_prob"         = "NeuralNet",
+    "LogisticRegression_WGD_prob" = "LogisticRegression"
+  )) %>%
+  mutate(Notation = case_when(
+    Group == "c1"        ~ "1DPT",
+    Group == "d1"         ~ "1DPT",
+    Group == "c5"         ~ "5DPT",
+    Group == "d5"         ~ "5DPT",
+    Group == "d10"        ~ "10PDT",
+    Group == "c10"        ~ "10PDT",
+    Group == "PC3"        ~ "Untreated",
+    Group == "untreated"  ~ "Untreated",
+    TRUE ~ NA_character_
+  )) %>% mutate(Notation = factor(Notation,
+                           levels = c("Untreated", "1DPT", "5DPT", "10PDT"))) %>%
   ggplot(aes(x = as.factor(label),
              y = PACCs_Probability,
-             fill = as.factor(label))) +
+             fill = as.factor(Notation))) +
   geom_violin(scale = "width", trim = FALSE) +
   facet_grid(Data ~ Model) +
   theme_bw(base_size = 20) +
-  scale_fill_viridis_d(option = "E", end = 0.5, name = "Cell Type",
-    labels = c("0" = "Non-PCs",
-               "1" = "PCs")) + xlab("Cell Type") + ylab("PCs probability")  + theme(
+  scale_fill_aaas(name = "Cell Type") + 
+  xlab("Cell Type") + ylab("PCs probability") + 
+  theme(
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank()
   )
+ggsave(filename = "/Users/debanjansaha/Desktop/train_AUC.pdf", plot = p1, width = 10)
+ggsave(filename = "/Users/debanjansaha/Desktop/train_import.pdf", plot = p2, width = 10)
+ggsave(filename = "/Users/debanjansaha/Desktop/valid_AUC.pdf", plot = p3, width = 10)
+ggsave(filename = "/Users/debanjansaha/Desktop/valid_prob.pdf", plot = p4, width = 15)
 
-ggsave(filename = "/Users/debanjansaha/Desktop/pc_plots_v4/train_AUC.pdf", plot = p1, width = 10)
-ggsave(filename = "/Users/debanjansaha/Desktop/pc_plots_v4/train_import.pdf", plot = p2, width = 10)
-ggsave(filename = "/Users/debanjansaha/Desktop/pc_plots_v4/valid_AUC.pdf", plot = p3, width = 10)
-ggsave(filename = "/Users/debanjansaha/Desktop/pc_plots_v4/valid_prob.pdf", plot = p4, width = 15)
 
+#Loss plots per model
+loss_plots_pca_c <- read.table(file = "/Users/debanjansaha/Desktop/loss_plots_sparc.tsv", header = T, sep = "\t")
+
+#Log Loss per model, Hinge loss for SVM
+xlabs <- c(LogisticRegression = "Iteration", NeuralNet = "Epoch", RandomForest = "Trees", SVM = "C", XGBoost = "Boosting round")  
+p5 <- loss_plots_pca_c %>%
+  pivot_longer(cols = c(train_loss, test_loss), names_to = "split", values_to = "loss") %>%
+  mutate(
+    model_str = as.character(model),
+    facet_label = paste0(model_str, "\n(x: ", xlabs[model_str], ")")
+  ) %>% 
+  ggplot(aes(x = x, y = loss, color = factor(fold), linetype = split)) +
+  geom_line(alpha = 0.8) +            
+  facet_wrap(~ facet_label, scales = "free" )+
+  scale_color_aaas(name = "Fold") +
+  scale_linetype_manual(values = c(train_loss = "solid", test_loss = "dashed"), name = NULL) +
+  labs(y = "Log Loss") +
+  theme_bw()
+ggsave(filename = "/Users/debanjansaha/Desktop/train_lossplot.pdf", plot = p5, width = 10)
+
+```
+
+#Consort plot of workflow
+```{r}
+#Sum cells to total in PC3 of 165,040 tumor cells
+line_sizes <- c(60000, 50000, 35000, 20040)         
+line_names <- paste0("CellLine_DPT", 1:4)
+
+#Create dummy df of cell line and benign spike in 
+meta <- bind_rows(
+  tibble(cell_id   = paste0("tumor_", seq_len(sum(line_sizes))),
+         cell_line = rep(line_names, times = line_sizes),
+         source    = "cell_line"),
+  tibble(cell_id   = paste0("benign_", 1:4000),
+         cell_line = "Benign_prostate",
+         source    = "benign")
+)
+ 
+#Create labels
+cohorts <- meta |>
+  cohort_start("Cells assessed") |>
+  cohort_define(
+    tumor_pool      = .full |> filter(source == "cell_line"),
+    benign_pool     = .full |> filter(source == "benign"),
+ 
+    tumor_sampled   = tumor_pool |>
+      group_by(cell_line) |>
+      slice_sample(n = n_per_line) |>              
+      ungroup(),
+    excluded_tumor  = anti_join(tumor_pool, tumor_sampled, by = "cell_id"),
+ 
+    #Bulleted counts of tumors
+    dpt1 = tumor_sampled |> filter(cell_line == "CellLine_DPT1"),
+    dpt2 = tumor_sampled |> filter(cell_line == "CellLine_DPT2"),
+    dpt3 = tumor_sampled |> filter(cell_line == "CellLine_DPT3"),
+    dpt4 = tumor_sampled |> filter(cell_line == "CellLine_DPT4"),
+ 
+    benign_sampled  = benign_pool |> slice_sample(n = n_benign),
+    analysis_set    = bind_rows(tumor_sampled, benign_sampled)
+  ) |>
+  cohort_label(
+    tumor_pool     = "PC3 + Cisplatin treated cells",
+    tumor_sampled  = "Downsampled cells",
+    dpt1           = "Untreated",
+    dpt2           = "1DPT",
+    dpt3           = "5DPT",
+    dpt4           = "10DPT",
+    analysis_set   = "Analysis set (cell lines + benign spike-in)"
+  )
+ 
+summary(cohorts)
+ 
+#Func to get N
+cnt  <- summary(cohorts)
+n_of <- function(nm) format(cnt$count[cnt$cohort == nm], big.mark = ",")
+ 
+#Main consort diagram
+flow <- cohorts |>
+
+  consort_box_add("tumor_pool", row = 1) |>
+  consort_box_add(
+    "tumor_sampled", row = 3,
+    label = cohort_count_bullets(cohorts, tumor_sampled, dpt1, dpt2, dpt3, dpt4)
+  ) |>
+  consort_box_add("analysis_set", row = 4, label = "Analysis set (cell lines + benign spike in)<br> n = 8000") |>
+  consort_box_add(
+    "benign_sampled", row = 4, col = "side",
+    label = paste0("Benign prostate spike-in<br>n = 4000"),
+                   " (sampled from a pool of 4000)") |>
+  consort_box_add(
+    "copykat", row = 5,
+    label = paste0("CopyKAT<br>(benign cells as diploid reference)<br>n = 8000")) |>
+  consort_box_add(
+    "ml", row = 6,
+    label = paste0("Five ML models<br>n = 4000",
+                   "<br>(LogReg, SVM, RF, XGBoost, NN;",
+                   "<br>5-fold stratified CV)")) |>
+  consort_box_add("validation", row = 7, col = -1, label = "Validation<br>datasets (PC3 + Docetaxel,<br>MDA-MB-231 + Doxetaxel/Cisplatin)") |>
+  consort_box_add("mcrpc",      row = 7, col = 0,  label = "mCRPC data") |>
+  consort_box_add("sensitivity",      row = 7, col = 1,  label = "Sensitivity Analysis") |>
+ 
+  consort_arrow_add(start = "tumor_pool",     end = "tumor_sampled") |>
+  consort_arrow_add(start = "tumor_pool",     end = "excluded_tumor") |>
+  consort_arrow_add(start = "tumor_sampled",  end = "analysis_set") |>
+  consort_arrow_add(start = "benign_sampled", end = "analysis_set") |>
+  consort_arrow_add(start = "analysis_set",   end = "copykat") |>
+  consort_arrow_add(start = "copykat",        end = "ml") |>
+  consort_arrow_add(start = "ml",             end = c("validation", "mcrpc", "sensitivity")) |>
+ 
+  consort_stage_add("Downsampling", row = c(1, 3)) |>
+  consort_stage_add("Spike-in",     row = 4) |>
+  consort_stage_add("CopyKAT",      row = 5) |>
+  consort_stage_add("Modeling",     row = 6) |>
+  consort_stage_add("Application",  row = 7)
+ 
+p <- flow |>
+  ggplot() +
+  geom_consort(equal_columns = TRUE) +
+  theme_consort()
+ 
+#Plotting
+pdf(file = "/Users/debanjansaha/Desktop/sparc_consort.pdf", width = 10)
+p
+dev.off()
+p
 
 ```
 

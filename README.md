@@ -176,7 +176,8 @@ See `submit_wdl.sh` for a ready-to-use submission script.
 |       └──sparc_cnv_inference.R    # Step 1: CNV inference
 │       └──sparc_run_models.py      # Step 2: ML/DL classification
 ├── data/                           # Example CSV files for replication
-└── models/                         # Saved .pkl model files
+└── results/
+|       └──models/                  # Individual ML/DL models
 ```
 
 Additional processed data generated from cell line experiments during this study are available from the corresponding authors upon reasonable request. Published data from the scRNA-seq mCRPC cohort used in this analysis was accessed through the Gene Expression Omnibus repository (Accession ID GSE264573). 
